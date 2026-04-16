@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#0891B2">
+  <title>MealLog</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════════════════════════════════════
+       Screen: Today
+  ══════════════════════════════════════════════ -->
+  <div id="screen-today" class="screen">
+    <header class="app-header">
+      <h1>今日の食事</h1>
+      <span id="today-count" class="count-badge" aria-live="polite"></span>
+    </header>
+
+    <div class="scroll-area">
+      <div id="today-empty" class="empty-state">
+        <div class="empty-icon">🍽️</div>
+        <p>まだ食事の記録がありません</p>
+        <p>下の ＋ ボタンで記録を追加しましょう</p>
+      </div>
+      <div id="today-list" class="meal-list hidden" role="list"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       Screen: Calendar
+  ══════════════════════════════════════════════ -->
+  <div id="screen-calendar" class="screen hidden">
+    <header class="app-header">
+      <h1>カレンダー</h1>
+    </header>
+
+    <div class="scroll-area">
+      <div class="cal-nav">
+        <button id="cal-prev" class="cal-nav-btn" aria-label="前の月">‹</button>
+        <span id="cal-title" role="heading" aria-level="2"></span>
+        <button id="cal-next" class="cal-nav-btn" aria-label="次の月">›</button>
+      </div>
+      <div id="calendar-grid" role="grid" aria-label="食事記録カレンダー"></div>
+      <button id="btn-delete-month" class="btn-delete-month">
+        🗑️ この月のデータをすべて削除
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       Screen: Day detail (from calendar)
+  ══════════════════════════════════════════════ -->
+  <div id="screen-day" class="screen hidden">
+    <header class="app-header">
+      <button id="day-back" class="back-btn" aria-label="カレンダーに戻る">
+        ‹ 戻る
+      </button>
+      <h1 id="day-title" style="font-size:15px;"></h1>
+    </header>
+
+    <div class="scroll-area">
+      <div id="day-empty" class="empty-state">
+        <div class="empty-icon">📅</div>
+        <p>この日の記録はありません</p>
+      </div>
+      <div id="day-list" class="meal-list hidden" role="list"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       Bottom Navigation
+  ══════════════════════════════════════════════ -->
+  <nav class="bottom-nav" aria-label="メインナビゲーション">
+    <button class="nav-btn active" data-screen="today" aria-label="今日の食事">
+      <span class="nav-icon" aria-hidden="true">🏠</span>
+      <span class="nav-label">今日</span>
+    </button>
+    <button id="main-capture-btn" class="nav-btn nav-capture" aria-label="食事を記録する">
+      <span class="capture-icon" aria-hidden="true">＋</span>
+    </button>
+    <button class="nav-btn" data-screen="calendar" aria-label="カレンダー">
+      <span class="nav-icon" aria-hidden="true">📅</span>
+      <span class="nav-label">カレンダー</span>
+    </button>
+  </nav>
+
+</div><!-- #app -->
+
+<!-- ══════════════════════════════════════════════
+     Modal: Camera / Gallery capture
+══════════════════════════════════════════════ -->
+<div id="camera-modal" class="modal hidden" role="dialog" aria-modal="true" aria-label="食事を記録">
+  <div class="modal-overlay"></div>
+
+  <!-- Step 1: Choose method -->
+  <div id="step-choose" class="modal-sheet">
+    <div class="modal-header">
+      <h2>食事を記録</h2>
+      <button class="modal-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="choose-btns">
+      <button id="btn-open-camera" class="choose-btn">
+        <span class="btn-icon" aria-hidden="true">📷</span>
+        カメラで撮影する
+      </button>
+      <button id="btn-open-gallery" class="choose-btn">
+        <span class="btn-icon" aria-hidden="true">🖼️</span>
+        フォトライブラリから選ぶ
+      </button>
+    </div>
+    <input type="file" id="gallery-input" accept="image/*" class="hidden" aria-hidden="true">
+  </div>
+
+  <!-- Step 2: Camera viewfinder -->
+  <div id="step-cam" class="modal-sheet hidden" style="background:#000; position:relative;">
+    <div class="cam-header">
+      <button class="modal-close cam-btn-icon" aria-label="閉じる">✕</button>
+      <button id="btn-switch-cam" class="cam-btn-icon" aria-label="カメラを切り替える">🔄</button>
+    </div>
+    <div class="cam-viewfinder">
+      <video id="cam-video" autoplay playsinline muted></video>
+    </div>
+    <div class="cam-controls">
+      <div style="width:44px;"></div>
+      <button id="btn-shutter" class="shutter-btn" aria-label="撮影する"></button>
+      <div style="width:44px;"></div>
+    </div>
+  </div>
+
+  <!-- Step 3: Preview + memo -->
+  <div id="step-memo" class="modal-sheet hidden">
+    <div class="modal-header">
+      <h2>メモを追加</h2>
+    </div>
+    <div class="preview-wrap">
+      <img id="preview-img" src="" alt="撮影した食事の写真">
+    </div>
+    <div class="memo-wrap">
+      <textarea id="memo-input"
+        placeholder="一言メモ（任意・100文字まで）"
+        maxlength="100"
+        aria-label="食事のメモ"
+        rows="3"></textarea>
+      <span class="memo-count" id="memo-count" aria-live="polite">0/100</span>
+    </div>
+    <div class="memo-actions">
+      <button id="btn-memo-cancel" class="btn-secondary">キャンセル</button>
+      <button id="btn-memo-save"   class="btn-primary">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     Modal: Delete confirmation
+══════════════════════════════════════════════ -->
+<div id="confirm-modal" class="modal hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="modal-overlay"></div>
+  <div class="modal-sheet">
+    <div class="confirm-body">
+      <h2 id="confirm-title" style="font-size:18px;">この記録を削除しますか？</h2>
+      <p id="confirm-desc">削除した記録は元に戻すことができません。</p>
+    </div>
+    <div class="confirm-actions">
+      <button id="btn-del-cancel"  class="btn-secondary">キャンセル</button>
+      <button id="btn-del-confirm" class="btn-danger">削除する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     Modal: Edit memo
+══════════════════════════════════════════════ -->
+<div id="edit-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+  <div class="modal-overlay"></div>
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <h2 id="edit-title">メモを編集</h2>
+      <button id="btn-edit-close" class="modal-close" aria-label="閉じる">✕</button>
+    </div>
+    <div class="edit-memo-wrap">
+      <textarea id="edit-memo-input"
+        maxlength="100"
+        placeholder="メモを入力（100文字まで）"
+        aria-label="メモ編集"
+        rows="4"></textarea>
+      <span class="memo-count" id="edit-memo-count" aria-live="polite">0/100</span>
+    </div>
+    <div class="memo-actions">
+      <button id="btn-edit-cancel" class="btn-secondary">キャンセル</button>
+      <button id="btn-edit-save"   class="btn-primary">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     Storage warning toast
+══════════════════════════════════════════════ -->
+<div id="storage-warning" class="hidden" role="alert" aria-live="assertive">
+  ⚠️ ストレージの使用量が200MBを超えています。古い記録の削除をご検討ください。
+</div>
+
+<script src="js/db.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+MealLog デプロイ情報
+====================
+サービス  : Netlify
+URL       : https://bucolic-rugelach-702f24.netlify.app
+パスワード: My-Drop-Site
+更新日    : 2026-04-05
+
+【旧URL】
+https://celadon-tulumba-b60dcc.netlify.app
+
+【更新手順】
+1. https://app.netlify.com/drop を開く
+2. meallog フォルダをドラッグ＆ドロップ
+3. 同じURLで上書き公開される

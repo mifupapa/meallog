@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お食事ノート の使い方</title>
+  <style>
+    /* ── ベーススタイル ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Meiryo", sans-serif;
+      font-size: 18px;
+      line-height: 1.8;
+      color: #222;
+      background: #f9f7f4;
+    }
+
+    /* ── レイアウト ── */
+    .page-wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 16px 60px;
+    }
+
+    /* ── ヘッダー ── */
+    .site-header {
+      background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+      color: #fff;
+      padding: 36px 24px 32px;
+      text-align: center;
+    }
+    .site-header .app-name {
+      font-size: 13px;
+      letter-spacing: .2em;
+      opacity: .85;
+      margin-bottom: 6px;
+    }
+    .site-header h1 {
+      font-size: clamp(26px, 5vw, 40px);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .site-header .subtitle {
+      margin-top: 10px;
+      font-size: 16px;
+      opacity: .9;
+    }
+
+    /* ── セクション共通 ── */
+    section { margin-top: 40px; }
+    .section-title {
+      font-size: clamp(20px, 3.5vw, 26px);
+      font-weight: 700;
+      color: #0e7490;
+      border-left: 6px solid #0891b2;
+      padding-left: 14px;
+      margin-bottom: 20px;
+    }
+
+    /* ── リード文 ── */
+    .lead {
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 28px;
+      font-size: 17px;
+      line-height: 1.9;
+      box-shadow: 0 1px 6px rgba(0,0,0,.07);
+    }
+    .lead strong { color: #0e7490; }
+
+    /* ── アプリを開くボタン ── */
+    .open-btn-wrap { text-align: center; margin: 28px 0 0; }
+    .open-btn {
+      display: inline-block;
+      background: #0891b2;
+      color: #fff;
+      font-size: 19px;
+      font-weight: 700;
+      padding: 16px 40px;
+      border-radius: 50px;
+      text-decoration: none;
+      letter-spacing: .05em;
+      box-shadow: 0 4px 14px rgba(8,145,178,.4);
+      transition: background .2s;
+    }
+    .open-btn:hover { background: #0e7490; }
+    .open-btn .btn-icon { margin-right: 8px; }
+
+    /* ── ステップカード ── */
+    .steps { display: flex; flex-direction: column; gap: 20px; }
+    .step-card {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08);
+      overflow: hidden;
+      display: flex;
+      align-items: stretch;
+    }
+    .step-num {
+      min-width: 64px;
+      background: #0891b2;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-body { padding: 20px 22px; flex: 1; }
+    .step-body h3 { font-size: 19px; font-weight: 700; margin-bottom: 8px; color: #1a1a1a; }
+    .step-body p  { font-size: 16px; color: #444; line-height: 1.75; }
+    .step-body .note {
+      margin-top: 10px;
+      background: #f0fafe;
+      border-left: 4px solid #7dd3e8;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 15px;
+      color: #444;
+    }
+
+    /* ── 機能説明グリッド ── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+    .feature-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      text-align: center;
+    }
+    .feature-card .f-icon { font-size: 44px; line-height: 1; margin-bottom: 12px; display: block; }
+    .feature-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #0e7490; }
+    .feature-card p  { font-size: 15px; color: #555; line-height: 1.7; }
+
+    /* ── ナビゲーション説明 ── */
+    .nav-explain {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+    }
+    .nav-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .nav-row:last-child { border-bottom: none; }
+    .nav-icon-box {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: #f0f9fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .nav-icon-box.accent { background: #0891b2; color: #fff; font-size: 26px; font-weight: 700; }
+    .nav-text h4 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .nav-text p  { font-size: 15px; color: #555; line-height: 1.6; }
+
+    /* ── 注意事項 ── */
+    .caution-box {
+      background: #fff8e1;
+      border: 2px solid #f4c430;
+      border-radius: 12px;
+      padding: 22px 24px;
+    }
+    .caution-box .caution-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #92660a;
+      margin-bottom: 14px;
+    }
+    .caution-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .caution-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 16px;
+      line-height: 1.75;
+      color: #444;
+    }
+    /* ⚠️ アイコンは縮まないよう固定 */
+    .caution-list li .ci {
+      flex-shrink: 0;
+      font-style: normal;
+      line-height: 1.75;
+    }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 14px; }
+    details {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 5px rgba(0,0,0,.07);
+      overflow: hidden;
+    }
+    details summary {
+      padding: 18px 22px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      list-style: none;
+      color: #1a1a1a;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::before {
+      content: "Q";
+      background: #0891b2;
+      color: #fff;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px;
+      flex-shrink: 0;
+    }
+    details summary::after {
+      content: "▼";
+      margin-left: auto;
+      color: #aaa;
+      font-size: 13px;
+      transition: transform .2s;
+    }
+    details[open] summary::after { transform: rotate(180deg); }
+    .faq-answer {
+      padding: 14px 22px 18px 60px;
+      font-size: 16px;
+      color: #444;
+      line-height: 1.8;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    /* ── フッター ── */
+    .site-footer {
+      margin-top: 60px;
+      text-align: center;
+      font-size: 14px;
+      color: #888;
+      padding-bottom: 20px;
+    }
+    .site-footer a { color: #0891b2; }
+
+    /* ── レスポンシブ ── */
+    @media (max-width: 480px) {
+      .step-num { min-width: 48px; font-size: 22px; }
+      .step-body { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== ヘッダー ===== -->
+<header class="site-header">
+  <p class="app-name">食事記録アプリ</p>
+  <h1>お食事ノート の使い方</h1>
+  <p class="subtitle">毎日の食事を写真で記録するアプリです</p>
+</header>
+
+<div class="page-wrap">
+
+  <!-- ===== リード ===== -->
+  <div class="lead">
+    <strong>お食事ノート</strong>は、毎日の食事を<strong>スマートフォンで簡単に記録</strong>できるアプリです。<br>
+    写真を撮影するだけで記録できますので、難しい操作は一切ありません。<br>
+    記録したデータはご自身のスマートフォンの中だけに保存されます。インターネット上には送信されませんのでご安心ください。
+    <div class="open-btn-wrap">
+      <a class="open-btn" href="https://bucolic-rugelach-702f24.netlify.app" target="_blank" rel="noopener">
+        <span class="btn-icon">📱</span>アプリを開く
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== 画面の説明 ===== -->
+  <section>
+    <h2 class="section-title">📱 アプリの画面について</h2>
+    <div class="nav-explain">
+
+      <div class="nav-row">
+        <div class="nav-icon-box">🏠</div>
+        <div class="nav-text">
+          <h4>「今日」の画面（ホーム画面）</h4>
+          <p>アプリを開いたときに最初に表示される画面です。<br>今日記録した食事の一覧が見られます。</p>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <div class="nav-icon-box accent">＋</div>
+        <div class="nav-text">
+          <h4>「＋」ボタン（食事を記録する）</h4>
+          <p>画面下中央にある青い「＋」ボタンを押すと、食事を記録できます。<br>このボタンが一番よく使うボタンです。</p>
+        </div>
+      </div>
+
+      <div class="nav-row">
+        <div class="nav-icon-box">📅</div>
+        <div class="nav-text">
+          <h4>「カレンダー」の画面</h4>
+          <p>カレンダー形式で過去の記録を見ることができます。<br>日付をタップすると、その日の食事一覧が表示されます。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== 使い方ステップ ===== -->
+  <section>
+    <h2 class="section-title">📖 食事を記録する手順</h2>
+    <div class="steps">
+
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>アプリを開く</h3>
+          <p>スマートフォンのブラウザ（Safari または Chrome）で上の「アプリを開く」ボタンを押してアクセスします。<br>ホーム画面にショートカットを追加しておくと、次回から便利です。</p>
+          <div class="note">💡 ショートカットの作り方：アプリを開いたら、ブラウザの「共有」ボタン（□に↑のマーク）→「ホーム画面に追加」を選んでください。</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>「＋」ボタンを押す</h3>
+          <p>画面の下中央にある大きな青い「<strong>＋</strong>」ボタンをタップします。<br>「食事を記録」という画面が表示されます。</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>撮影方法を選ぶ</h3>
+          <p>次の2つの方法から選んでください。</p>
+          <p>📷 <strong>カメラで撮影する</strong>…これから食べる料理をその場で撮影します。<br>
+          🖼️ <strong>フォトライブラリから選ぶ</strong>…すでにスマートフォンに保存されている写真を使います。</p>
+          <div class="note">💡 初めての方は「カメラで撮影する」がおすすめです。</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h3>写真を撮影する（カメラを選んだ場合）</h3>
+          <p>カメラが起動します。料理がきれいに画面に収まるように向けて、<br>中央の大きな白いボタン（シャッター）を押して撮影します。</p>
+          <div class="note">💡 前のカメラと後ろのカメラは「🔄」ボタンで切り替えられます。</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-body">
+          <h3>メモを入力する（任意・省略可）</h3>
+          <p>撮影した写真が表示されます。<br>「一言メモ」の欄に食事の内容などを入力することができます（最大100文字）。<br><strong>メモは必須ではありません</strong>ので、何も書かずにそのまま保存しても大丈夫です。</p>
+          <div class="note">💡 例：「朝食」「昼食」「夕食」「おやつ」「外食（和食）」など</div>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num">6</div>
+        <div class="step-body">
+          <h3>「保存する」を押す</h3>
+          <p>青い「<strong>保存する</strong>」ボタンを押すと記録が完了です。<br>「今日」の画面に戻り、記録した食事の写真が表示されます。</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== 機能説明 ===== -->
+  <section>
+    <h2 class="section-title">✨ その他の機能</h2>
+    <div class="feature-grid">
+
+      <div class="feature-card">
+        <span class="f-icon">📝</span>
+        <h3>メモを編集する</h3>
+        <p>記録した食事の写真を長押しすると、メモの編集ができます。あとからメモを書き直すことが可能です。</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="f-icon">🗑️</span>
+        <h3>記録を削除する</h3>
+        <p>記録した食事の写真を長押しすると、削除することもできます。削除した記録は元に戻せませんのでご注意ください。</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="f-icon">📅</span>
+        <h3>過去の記録を見る</h3>
+        <p>下のナビゲーションの「📅 カレンダー」を押すと、月ごとのカレンダーが表示されます。食事を記録した日付には印がつき、日付をタップするとその日の記録が確認できます。</p>
+      </div>
+
+      <div class="feature-card">
+        <span class="f-icon">🔢</span>
+        <h3>記録数を確認する</h3>
+        <p>「今日」の画面のタイトルの横に、今日の記録件数が表示されます。食事の回数を把握するのに便利です。</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===== 注意事項 ===== -->
+  <section>
+    <h2 class="section-title">⚠️ ご利用にあたって</h2>
+    <div class="caution-box">
+      <p class="caution-title">以下の点にご注意ください</p>
+      <ul class="caution-list">
+        <li>
+          <i class="ci">⚠️</i>
+          <span>データの保存場所はスマートフォン本体の中のみです。機種変更や端末の初期化を行うと、記録が消えてしまいます。</span>
+        </li>
+        <li>
+          <i class="ci">⚠️</i>
+          <span>インターネット上のサーバーには送信・保存されませんので、プライバシーの観点でも安心です。</span>
+        </li>
+        <li>
+          <i class="ci">⚠️</i>
+          <span>写真データは自動的に小さく圧縮して保存されます。毎食記録しても約8〜9ヶ月は余裕がありますが、200MB（約800枚相当）を超えると画面に警告が表示されます。その際は古い記録を削除してください。</span>
+        </li>
+        <li>
+          <i class="ci">⚠️</i>
+          <span>このアプリはスマートフォン・タブレットのブラウザからご利用ください（パソコンでも利用できますがスマートフォンに最適化されています）。</span>
+        </li>
+        <li>
+          <i class="ci">⚠️</i>
+          <span>このアプリは食事の記録を目的としたものです。医療的な診断・治療の代わりにはなりません。</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section>
+    <h2 class="section-title">❓ よくあるご質問</h2>
+    <div class="faq-list">
+
+      <details>
+        <summary>アプリをインストールする必要はありますか？</summary>
+        <div class="faq-answer">
+          インストールは不要です。スマートフォンのブラウザ（Safari または Chrome）でアドレスにアクセスするだけで使えます。<br>
+          ただし、ホーム画面にショートカットを追加しておくと、アプリのように素早く開くことができます。
+        </div>
+      </details>
+
+      <details>
+        <summary>カメラの許可を求められましたが、どうすればよいですか？</summary>
+        <div class="faq-answer">
+          初めてカメラ機能を使う際、「カメラへのアクセスを許可しますか？」というメッセージが表示されます。<br>
+          「許可」または「OK」を押してください。これを行わないとカメラで撮影できません。<br>
+          （フォトライブラリから選ぶ場合も、同様に「許可」を押してください）
+        </div>
+      </details>
+
+      <details>
+        <summary>記録した食事を間違えて保存してしまいました。</summary>
+        <div class="faq-answer">
+          「今日」の画面に表示されている食事の写真を長押しすると、削除やメモの編集ができます。<br>
+          削除した記録は元に戻すことができませんので、ご注意ください。
+        </div>
+      </details>
+
+      <details>
+        <summary>スマートフォンを変えたら記録が消えてしまいますか？</summary>
+        <div class="faq-answer">
+          はい、このアプリのデータはお使いのスマートフォンの中にのみ保存されています。<br>
+          機種変更や端末の初期化を行うと、記録は消えてしまいます。あらかじめご了承ください。
+        </div>
+      </details>
+
+      <details>
+        <summary>昔の記録はどこで見られますか？</summary>
+        <div class="faq-answer">
+          画面下のナビゲーションの「📅 カレンダー」ボタンを押してください。<br>
+          月ごとのカレンダーが表示されます。「‹」「›」ボタンで月を移動でき、記録した日付をタップするとその日の食事一覧が確認できます。
+        </div>
+      </details>
+
+      <details>
+        <summary>料金はかかりますか？</summary>
+        <div class="faq-answer">
+          このアプリは当院の患者様に無料でご提供しています。通信料（インターネット接続費用）はお客様のご契約によりますが、アプリ自体の利用料は一切かかりません。
+        </div>
+      </details>
+
+    </div>
+  </section>
+
+  <!-- ===== ホーム画面への追加方法 ===== -->
+  <section>
+    <h2 class="section-title">📌 ホーム画面への追加方法</h2>
+    <div class="steps">
+
+      <div class="step-card">
+        <div class="step-num" style="background:#34a853; min-width:56px; font-size:15px; font-weight:700;">iPhone</div>
+        <div class="step-body">
+          <h3>iPhoneの場合（Safari）</h3>
+          <p>
+            ① Safari でアプリのページを開く<br>
+            ② 画面下の「共有ボタン」（□に↑のマーク）をタップ<br>
+            ③ 「ホーム画面に追加」をタップ<br>
+            ④ 「追加」をタップして完了
+          </p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num" style="background:#4285f4; min-width:56px; font-size:15px; font-weight:700;">Android</div>
+        <div class="step-body">
+          <h3>Androidの場合（Chrome）</h3>
+          <p>
+            ① Chrome でアプリのページを開く<br>
+            ② 画面右上の「…」（メニュー）をタップ<br>
+            ③ 「ホーム画面に追加」をタップ<br>
+            ④ 「追加」をタップして完了
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+</div><!-- /page-wrap -->
+
+<!-- ===== フッター ===== -->
+<footer class="site-footer">
+  <p>食事記録アプリ お食事ノート｜当院患者様向け無料サービス</p>
+  <p style="margin-top:6px;">
+    アプリURL：<a href="https://bucolic-rugelach-702f24.netlify.app" target="_blank" rel="noopener">https://bucolic-rugelach-702f24.netlify.app</a>
+  </p>
+</footer>
+
+</body>
+</html>
