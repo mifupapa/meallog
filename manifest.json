@@ -1,0 +1,10 @@
+{
+  "name": "食事ノート",
+  "short_name": "食事ノート",
+  "description": "食事記録アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0891B2",
+  "icons": []
+}
